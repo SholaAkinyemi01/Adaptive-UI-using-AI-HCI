@@ -1,4 +1,4 @@
-# Adaptive-UI-using-AI-HCI
+
 # Adaptive UI Demo (AI/HCI)
 
 This is a zero-backend demo that shows an **adaptive user interface** with:
