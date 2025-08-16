@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Adaptive UI Demo (AI/HCI)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-gray-50 text-gray-900">
+  <div class="max-w-5xl mx-auto p-4 md:p-8">
+    <header class="mb-6">
+      <h1 class="text-3xl font-bold">Adaptive UI Demo</h1>
+      <p class="text-sm text-gray-600">Demonstrates an adaptive user interface using a simple multi-armed bandit and rule-based personalization. No server—everything runs in your browser.</p>
+    </header>
+
+    <!-- Consent Banner -->
+    <div id="consentBanner" class="hidden rounded-xl p-4 mb-6 border bg-white shadow-sm">
+      <div class="flex items-start gap-3">
+        <div class="grow">
+          <h2 class="font-semibold">Help us adapt this UI</h2>
+          <p class="text-sm text-gray-700">
+            With your permission, this demo stores anonymous interaction data in your browser (localStorage) to personalize layout, font sizes, and help prompts.
+            You can revoke consent anytime.
+          </p>
+        </div>
+        <div class="flex gap-2">
+          <button id="consentAllow" class="px-3 py-2 rounded-xl border">Allow</button>
+          <button id="consentDeny" class="px-3 py-2 rounded-xl border">Deny</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controls / Preferences -->
+    <section class="grid md:grid-cols-3 gap-4">
+      <div class="md:col-span-1 rounded-2xl p-4 border bg-white shadow-sm">
+        <h2 class="font-semibold mb-2">Your Preferences</h2>
+        <label class="block text-sm mb-1">Font size</label>
+        <select id="fontSize" class="w-full border rounded-xl p-2 mb-3">
+          <option value="base">Base</option>
+          <option value="lg">Large</option>
+          <option value="xl">Extra Large</option>
+        </select>
+
+        <label class="block text-sm mb-1">Contrast</label>
+        <select id="contrast" class="w-full border rounded-xl p-2 mb-3">
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+          <option value="high">High Contrast</option>
+        </select>
+
+        <label class="block text-sm mb-1">Density</label>
+        <select id="density" class="w-full border rounded-xl p-2 mb-4">
+          <option value="cozy">Cozy</option>
+          <option value="compact">Compact</option>
+          <option value="comfortable">Comfortable</option>
+        </select>
+
+        <div class="flex gap-2">
+          <button id="savePrefs" class="px-3 py-2 rounded-xl bg-gray-900 text-white">Save</button>
+          <button id="resetAll" class="px-3 py-2 rounded-xl border">Reset</button>
+        </div>
+      </div>
+
+      <!-- Main content -->
+      <div class="md:col-span-2 rounded-2xl p-4 border bg-white shadow-sm">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="font-semibold">Task: Explore Cards</h2>
+          <span id="layoutBadge" class="text-xs px-2 py-1 rounded-full border"></span>
+        </div>
+
+        <!-- Two alternate layouts (A/B) controlled by bandit) -->
+        <div id="layoutA" class="hidden">
+          <div class="grid md:grid-cols-3 gap-4">
+            <div class="border rounded-2xl p-4">
+              <h3 class="font-semibold">Article</h3>
+              <p class="text-sm text-gray-700">Read about adaptive UIs and AI/HCI.</p>
+              <button class="primaryCta mt-3 px-3 py-2 rounded-xl bg-blue-600 text-white">Open</button>
+            </div>
+            <div class="border rounded-2xl p-4">
+              <h3 class="font-semibold">Video</h3>
+              <p class="text-sm text-gray-700">Watch a short explainer.</p>
+              <button class="primaryCta mt-3 px-3 py-2 rounded-xl bg-blue-600 text-white">Play</button>
+            </div>
+            <div class="border rounded-2xl p-4">
+              <h3 class="font-semibold">Settings</h3>
+              <p class="text-sm text-gray-700">Tune preferences on the left.</p>
+              <button class="primaryCta mt-3 px-3 py-2 rounded-xl bg-blue-600 text-white">Adjust</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="layoutB" class="hidden">
+          <div class="space-y-4">
+            <div class="border rounded-2xl p-4 flex items-center justify-between">
+              <div>
+                <h3 class="font-semibold">Article</h3>
+                <p class="text-sm text-gray-700">Read about adaptive UIs and AI/HCI.</p>
+              </div>
+              <button class="primaryCta px-3 py-2 rounded-xl bg-blue-600 text-white">Open</button>
+            </div>
+            <div class="border rounded-2xl p-4 flex items-center justify-between">
+              <div>
+                <h3 class="font-semibold">Video</h3>
+                <p class="text-sm text-gray-700">Watch a short explainer.</p>
+              </div>
+              <button class="primaryCta px-3 py-2 rounded-xl bg-blue-600 text-white">Play</button>
+            </div>
+            <div class="border rounded-2xl p-4 flex items-center justify-between">
+              <div>
+                <h3 class="font-semibold">Settings</h3>
+                <p class="text-sm text-gray-700">Tune preferences on the left.</p>
+              </div>
+              <button class="primaryCta px-3 py-2 rounded-xl bg-blue-600 text-white">Adjust</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6">
+          <button id="helpToggle" class="px-3 py-2 rounded-xl border">Show Guidance</button>
+          <div id="helpPanel" class="hidden mt-3 p-3 rounded-xl bg-yellow-50 border text-sm">
+            <p class="mb-2 font-semibold">Guided Mode</p>
+            <ol class="list-decimal pl-5 space-y-1">
+              <li>Click any <span class="font-semibold">primary button</span> to complete a task.</li>
+              <li>Try moving the pointer slowly over labels; if we detect hesitations, we will surface tips.</li>
+              <li>Use <span class="font-semibold">Save</span> to apply your preferences.</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="mt-6">
+          <p class="font-semibold mb-1">Why did the UI change?</p>
+          <div id="explanations" class="text-sm text-gray-700 space-y-1"></div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="mt-10 text-xs text-gray-500">
+      <p>Transparency: this demo stores a small user model in <code>localStorage</code>. Use “Reset” to delete it. View source in this folder.</p>
+    </footer>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>
